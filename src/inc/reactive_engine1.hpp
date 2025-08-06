@@ -8,12 +8,13 @@
 
 namespace Test {
 
-
 class ReactiveEngine1
 {
 public:
     ReactiveEngine1()
     {
+        m_registry.on_construct<Position>().connect<&ReactiveEngine1::pos_cb>(this);
+
         m_pool.bind( m_registry );
 
         // not caught by reactive mixin: pool = 0
@@ -36,6 +37,8 @@ public:
     }
 private:
     entt::registry m_registry{};
+
+    
     
     using my_reactive_storage = entt::reactive_mixin<entt::storage<bool>>;
     my_reactive_storage m_pool{}; 
@@ -47,6 +50,14 @@ private:
         // return entity;
     }
 
+    void pos_cb(entt::registry &m_registry, entt::entity entity)
+    {   
+        SPDLOG_INFO(" Entity {} - Added Position component {},{}", 
+            entt::entt_traits<entt::entity>::to_entity(entity), // id
+            m_registry.get<Position>(entity).x, 
+            m_registry.get<Position>(entity).y
+        );
+    }
 
 };
 
